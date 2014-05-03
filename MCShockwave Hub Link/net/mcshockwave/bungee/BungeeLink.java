@@ -57,6 +57,16 @@ public class BungeeLink extends Plugin implements Listener {
 				}
 			}
 		}, 2, 2, TimeUnit.MINUTES);
+
+		getProxy().getScheduler().schedule(this, new Runnable() {
+			public void run() {
+				for (String s : getProxy().getServers().keySet()) {
+					ServerInfo si = getProxy().getServerInfo(s);
+					
+					sendMessage(s, si, "MCSServerPing");
+				}
+			}
+		}, 2, 2, TimeUnit.MINUTES);
 	}
 
 	public void sendMessage(String mes, ServerInfo server, String dataName) {
