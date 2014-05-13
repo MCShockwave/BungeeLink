@@ -62,7 +62,7 @@ public class BungeeLink extends Plugin implements Listener {
 			public void run() {
 				for (String s : getProxy().getServers().keySet()) {
 					ServerInfo si = getProxy().getServerInfo(s);
-					
+
 					sendMessage(s, si, "MCSServerPing");
 				}
 			}
@@ -229,6 +229,12 @@ public class BungeeLink extends Plugin implements Listener {
 							+ ")] " + message);
 				}
 			}
+
+			replCom.remove(sender);
+			replCom.put(sender, receiver);
+
+			replCom.remove(receiver);
+			replCom.put(receiver, sender);
 		}
 
 		if (event.getTag().equalsIgnoreCase("MCShockwave")) {
