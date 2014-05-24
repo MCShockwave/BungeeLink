@@ -1,6 +1,8 @@
 package net.mcshockwave.bungee;
 
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -9,48 +11,94 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
-public enum SQLTable {
-	ADMINS,
-	BanHistory,
-	Banned,
-	Coins,
-	Dojo,
-	ForceCooldowns,
-	Friends,
-	JunMODS,
-	Level,
-	MiscItems,
-	ModCommands,
-	MODS,
-	Muted,
-	MynerimItems,
-	nickNames,
-	PermaItems,
-	Points,
-	PrivateMutes,
-	RedeemCodes,
-	Scavenger,
-	Settings,
-	SkillTokens,
-	Tips,
-	Youtubers,
-	VIPS,
-	Zombiez;
+public class SQLTable {
+	public static final SQLTable	ADMINS			= new SQLTable("ADMINS");
+	public static final SQLTable	BanHistory		= new SQLTable("BanHistory");
+	public static final SQLTable	Banned			= new SQLTable("Banned");
+	public static final SQLTable	Coins			= new SQLTable("Coins");
+	public static final SQLTable	Dojo			= new SQLTable("Dojo");
+	public static final SQLTable	ForceCooldowns	= new SQLTable("ForceCooldowns");
+	public static final SQLTable	Friends			= new SQLTable("Friends");
+	public static final SQLTable	JunMODS			= new SQLTable("JunMODS");
+	public static final SQLTable	Level			= new SQLTable("Level");
+	public static final SQLTable	MiscItems		= new SQLTable("MiscItems");
+	public static final SQLTable	ModCommands		= new SQLTable("ModCommands");
+	public static final SQLTable	MODS			= new SQLTable("MODS");
+	public static final SQLTable	Muted			= new SQLTable("Muted");
+	public static final SQLTable	MynerimItems	= new SQLTable("MynerimItems");
+	public static final SQLTable	nickNames		= new SQLTable("nickNames");
+	public static final SQLTable	PermaItems		= new SQLTable("PermaItems");
+	public static final SQLTable	Points			= new SQLTable("Points");
+	public static final SQLTable	PrivateMutes	= new SQLTable("PrivateMutes");
+	public static final SQLTable	RedeemCodes		= new SQLTable("RedeemCodes");
+	public static final SQLTable	Rules			= new SQLTable("Rules");
+	public static final SQLTable	Scavenger		= new SQLTable("Scavenger");
+	public static final SQLTable	Settings		= new SQLTable("Settings");
+	public static final SQLTable	SkillTokens		= new SQLTable("SkillTokens");
+	public static final SQLTable	Statistics		= new SQLTable("Statistics");
+	public static final SQLTable	Tips			= new SQLTable("Tips");
+	public static final SQLTable	Updater			= new SQLTable("Updater");
+	public static final SQLTable	Youtubers		= new SQLTable("Youtubers");
+	public static final SQLTable	VIPS			= new SQLTable("VIPS");
+	public static final SQLTable	Zombiez			= new SQLTable("Zombiez");
 
-	public static String		SqlIP	= "127.0.0.1";
-	public static String		SqlName	= "vahost_24";
-	public static String		SqlUser	= SqlName;
-	public static String		SqlPass	= "Charlie42";
+	public String					name;
 
-	public static Statement		stmt	= null;
-	public static Connection	con		= null;
+	public SQLTable(String name) {
+		this.name = name;
+	}
+
+	public String name() {
+		return name;
+	}
+
+	public static String		SqlIP		= "127.0.0.1";
+	public static String		SqlName		= "vahost_24";
+	public static String		SqlUser		= SqlName;
+
+	// DONT LOOK AT THIS PLEASEEEEE
+	public static String		SqlPass		= "24eilrahC";
+	// TURN AWAY NOW!!!!
+
+	public static Statement		stmt		= null;
+	public static Connection	con			= null;
+
+	public static ScheduledTask	conRestart	= null;
 
 	public static void enable() {
+		BungeeCord.getInstance().getLogger().info("Enabling SQL Connection");
+		if (conRestart != null) {
+			conRestart.cancel();
+		}
 		try {
-			con = DriverManager.getConnection("jdbc:mysql://" + SqlIP + ":3306/" + SqlName, SqlUser, SqlPass);
-			stmt = (Statement) con.createStatement();
+			con = DriverManager.getConnection("jdbc:mysql://" + SqlIP + ":3306/" + SqlName, SqlUser, new StringBuffer(
+					SqlPass).reverse().toString());
+			stmt = con.createStatement();
+
+			conRestart = BungeeCord.getInstance().getScheduler().schedule(BungeeLink.ins, new Runnable() {
+				public void run() {
+					restartConnection();
+				}
+			}, 10, 10, TimeUnit.MINUTES);
 		} catch (SQLException e) {
+			BungeeCord.getInstance().getLogger().severe("SQL Connection enable FAILED!");
+			enable();
+			e.printStackTrace();
+		}
+	}
+
+	public static void restartConnection() {
+		BungeeCord.getInstance().getLogger().info("Restarting SQL Connection");
+		try {
+			con.close();
+			stmt.close();
+			enable();
+			BungeeCord.getInstance().getLogger().info("SQL Connection successfully restarted!");
+		} catch (SQLException e) {
+			BungeeCord.getInstance().getLogger().severe("SQL Restart FAILED!");
+			enable();
 			e.printStackTrace();
 		}
 	}
@@ -310,7 +358,7 @@ public enum SQLTable {
 	}
 
 	public static void clearRank(String name) {
-		SQLTable[] tables = { ADMINS, MODS, JunMODS, VIPS };
+		SQLTable[] tables = { ADMINS, MODS, JunMODS, VIPS, Youtubers };
 		for (SQLTable t : tables) {
 			t.del("Username", name);
 		}
@@ -362,12 +410,10 @@ public enum SQLTable {
 			ChatColor.RED,
 			"Admin");
 
-		int		val;
+		int	val;
 
 		Rank(int val, ChatColor sufColor, String sufChar) {
 			this.val = val;
-			// this.suf.setSuffix(" " + sufColor + "[" + sufChar + sufColor +
-			// "]");
 		}
 	}
 }
