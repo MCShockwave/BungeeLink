@@ -72,6 +72,21 @@ public class BungeeLink extends Plugin implements Listener {
 				}
 			}
 		}, 2, 2, TimeUnit.MINUTES);
+
+		getProxy().getScheduler().schedule(ins, new Runnable() {
+			public void run() {
+				updateMOTD();
+			}
+		}, 60, 60, TimeUnit.SECONDS);
+
+		updateMOTD();
+	}
+
+	public void updateMOTD() {
+		motd = SQLTable.Settings.get("Setting", "MOTD_Prefix", "Value")
+				+ SQLTable.Settings.get("Setting", "MOTD", "Value");
+
+		maxplayers = SQLTable.Settings.getInt("Setting", "MaxPlayers", "Value");
 	}
 
 	public void sendMessage(String mes, ServerInfo server, String dataName) {
@@ -85,11 +100,11 @@ public class BungeeLink extends Plugin implements Listener {
 		server.sendData(dataName, stream.toByteArray());
 	}
 
+	public static String	motd		= "";
+	public static int		maxplayers	= -1;
+
 	@EventHandler
 	public void serverPing(ProxyPingEvent event) {
-		String motd = SQLTable.Settings.get("Setting", "MOTD_Prefix", "Value")
-				+ SQLTable.Settings.get("Setting", "MOTD", "Value");
-		int maxplayers = SQLTable.Settings.getInt("Setting", "MaxPlayers", "Value");
 		ServerPing sp = event.getResponse();
 		sp.setDescription(motd);
 		sp.setPlayers(new Players(maxplayers, sp.getPlayers().getOnline(), sp.getPlayers().getSample()));
