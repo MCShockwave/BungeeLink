@@ -77,7 +77,7 @@ public class BungeeLink extends Plugin implements Listener {
 			public void run() {
 				updateMOTD();
 			}
-		}, 60, 60, TimeUnit.SECONDS);
+		}, 30, 30, TimeUnit.MINUTES);
 
 		updateMOTD();
 	}
