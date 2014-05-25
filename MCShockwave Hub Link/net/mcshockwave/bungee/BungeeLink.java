@@ -4,7 +4,6 @@ import net.mcshockwave.bungee.SQLTable.Rank;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.ServerPing.Players;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
@@ -46,6 +45,7 @@ public class BungeeLink extends Plugin implements Listener {
 			getProxy().registerChannel(s);
 		}
 		this.getProxy().getPluginManager().registerListener(this, this);
+
 		SQLTable.enable();
 
 		getProxy().getScheduler().schedule(this, new Runnable() {
@@ -134,7 +134,7 @@ public class BungeeLink extends Plugin implements Listener {
 			if (message != null && player != null) {
 				ProxiedPlayer pp = getProxy().getPlayer(player);
 				if (pp != null) {
-					pp.sendMessage(m(message));
+					sendMessage(player + "::" + message, pp.getServer().getInfo(), "SendMessage");
 				}
 			}
 
@@ -177,24 +177,24 @@ public class BungeeLink extends Plugin implements Listener {
 			}
 
 			if (getProxy().getPlayer(receiver) == null) {
-				getProxy().getPlayer(sender).sendMessage(m("§cPlayer not found: '" + receiver + "'"));
+				sendTo(getProxy().getPlayer(sender), "§cPlayer not found: '" + receiver + "'");
 				return;
 			}
 			for (ProxiedPlayer pp : getProxy().getPlayers()) {
 				if (pp.getName().equalsIgnoreCase(sender)) {
-					pp.sendMessage(m("§7[You -> " + receiver + "("
-							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message));
+					sendTo(pp, "§7[You -> " + receiver + "("
+							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message);
 					continue;
 				}
 				if (pp.getName().equalsIgnoreCase(receiver)) {
-					pp.sendMessage(m("§7[" + sender + "("
-							+ getProxy().getPlayer(sender).getServer().getInfo().getName() + ") -> You] " + message));
+					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
+							+ ") -> You] " + message);
 					continue;
 				}
 				if (SQLTable.hasRank(pp.getName(), Rank.JR_MOD)) {
-					pp.sendMessage(m("§7[" + sender + "("
-							+ getProxy().getPlayer(sender).getServer().getInfo().getName() + ") -> " + receiver + "("
-							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message));
+					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
+							+ ") -> " + receiver + "(" + getProxy().getPlayer(receiver).getServer().getInfo().getName()
+							+ ")] " + message);
 				}
 			}
 
@@ -223,30 +223,30 @@ public class BungeeLink extends Plugin implements Listener {
 			}
 
 			if (!replCom.containsKey(sender) && getProxy().getPlayer(sender) != null) {
-				getProxy().getPlayer(sender).sendMessage(m("§cNo recent conversations found"));
+				sendTo(getProxy().getPlayer(sender), "§cNo recent conversations found");
 				return;
 			}
 			String receiver = replCom.get(sender);
 
 			if (getProxy().getPlayer(receiver) == null) {
-				getProxy().getPlayer(sender).sendMessage(m("§cPlayer not found: '" + receiver + "'"));
+				sendTo(getProxy().getPlayer(sender), "§cPlayer not found: '" + receiver + "'");
 				return;
 			}
 			for (ProxiedPlayer pp : getProxy().getPlayers()) {
 				if (pp.getName().equalsIgnoreCase(sender)) {
-					pp.sendMessage(m("§7[You -> " + receiver + "("
-							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message));
+					sendTo(pp, "§7[You -> " + receiver + "("
+							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message);
 					continue;
 				}
 				if (pp.getName().equalsIgnoreCase(receiver)) {
-					pp.sendMessage(m("§7[" + sender + "("
-							+ getProxy().getPlayer(sender).getServer().getInfo().getName() + ") -> You] " + message));
+					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
+							+ ") -> You] " + message);
 					continue;
 				}
 				if (SQLTable.hasRank(pp.getName(), Rank.JR_MOD)) {
-					pp.sendMessage(m("§7[" + sender + "("
-							+ getProxy().getPlayer(sender).getServer().getInfo().getName() + ") -> " + receiver + "("
-							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message));
+					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
+							+ ") -> " + receiver + "(" + getProxy().getPlayer(receiver).getServer().getInfo().getName()
+							+ ")] " + message);
 				}
 			}
 
@@ -365,7 +365,7 @@ public class BungeeLink extends Plugin implements Listener {
 
 			for (ProxiedPlayer pp : getProxy().getPlayers()) {
 				if (SQLTable.hasRank(pp.getName(), r)) {
-					pp.sendMessage(m(message));
+					sendTo(pp, message);
 				}
 			}
 
@@ -443,18 +443,24 @@ public class BungeeLink extends Plugin implements Listener {
 				}
 				fri = fri.replaceFirst(", ", "");
 
-				p.sendMessage(m(" "), m(ChatColor.BLACK + "--- " + ChatColor.GOLD + "[Friends]" + ChatColor.BLACK
-						+ " ---"));
-				p.sendMessage(m(nfs), m(" "));
-
-				p.sendMessage(m(ChatColor.BLACK + "--- " + ChatColor.GOLD + "[You Friended]" + ChatColor.BLACK + " ---"));
-				p.sendMessage(m(frd), m(" "));
-
-				p.sendMessage(m(ChatColor.BLACK + "--- " + ChatColor.GOLD + "[Friended By]" + ChatColor.BLACK + " ---"));
-				p.sendMessage(m(fri), m(" "));
+				// p.sendMessage(m(" "));
+				// p.sendMessage(m(ChatColor.BLACK + "--- " + ChatColor.GOLD +
+				// "[Friends]" + ChatColor.BLACK + " ---"));
+				// p.sendMessage(m(nfs));
+				// p.sendMessage(m(" "));
+				//
+				// p.sendMessage(m(ChatColor.BLACK + "--- " + ChatColor.GOLD +
+				// "[You Friended]" + ChatColor.BLACK + " ---"));
+				// p.sendMessage(m(frd));
+				// p.sendMessage(m(" "));
+				//
+				// p.sendMessage(m(ChatColor.BLACK + "--- " + ChatColor.GOLD +
+				// "[Friended By]" + ChatColor.BLACK + " ---"));
+				// p.sendMessage(m(fri));
+				// p.sendMessage(m(fri));
 
 			} else {
-				p.sendMessage(m(ChatColor.RED + "You don't have any friends! Add some! /friend [name]"));
+				sendTo(p, ChatColor.RED + "You don't have any friends! Add some! /friend [name]");
 			}
 		}
 	}
@@ -486,8 +492,8 @@ public class BungeeLink extends Plugin implements Listener {
 		}
 	}
 
-	public TextComponent m(String m) {
-		return new TextComponent(m);
+	public void sendTo(ProxiedPlayer pp, String m) {
+		sendMessage(pp.getName() + "::" + m, pp.getServer().getInfo(), "SendMessage");
 	}
 
 	//
