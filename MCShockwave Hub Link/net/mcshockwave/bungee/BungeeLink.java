@@ -55,6 +55,11 @@ public class BungeeLink extends Plugin implements Listener {
 					for (String s : SQLTable.Tips.getAll("Server", "all", "Tip")) {
 						tipL.add(s);
 					}
+					if (si.startsWith("mg")) {
+						for (String s : SQLTable.Tips.getAll("Server", "mg", "Tip")) {
+							tipL.add(s);
+						}
+					}
 					String[] tips = tipL.toArray(new String[0]);
 					if (tips.length > 0 && getProxy().getServers().get(si).getPlayers().size() > 0) {
 						sendMessage(tips[rand.nextInt(tips.length)], getProxy().getServers().get(si), "MCSTips");
