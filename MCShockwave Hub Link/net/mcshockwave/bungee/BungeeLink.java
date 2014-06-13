@@ -78,12 +78,6 @@ public class BungeeLink extends Plugin implements Listener {
 			}
 		}, 2, 2, TimeUnit.MINUTES);
 
-		getProxy().getScheduler().schedule(ins, new Runnable() {
-			public void run() {
-				updateMOTD();
-			}
-		}, 30, 30, TimeUnit.MINUTES);
-
 		updateMOTD();
 	}
 
@@ -114,6 +108,11 @@ public class BungeeLink extends Plugin implements Listener {
 		sp.setDescription(motd);
 		sp.setPlayers(new Players(maxplayers, sp.getPlayers().getOnline(), sp.getPlayers().getSample()));
 		event.setResponse(sp);
+		
+		try {
+			updateMOTD();
+		} catch (Exception e) {
+		}
 	}
 
 	@EventHandler
