@@ -366,7 +366,7 @@ public class BungeeLink extends Plugin implements Listener {
 			}
 
 			Rank r = Rank.valueOf(rank.toUpperCase());
-
+			
 			for (ProxiedPlayer pp : getProxy().getPlayers()) {
 				if (SQLTable.hasRank(pp.getName(), r)) {
 					sendTo(pp, message);

@@ -14,35 +14,44 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class SQLTable {
-	public static final SQLTable	ADMINS			= new SQLTable("ADMINS");
-	public static final SQLTable	BanHistory		= new SQLTable("BanHistory");
-	public static final SQLTable	Banned			= new SQLTable("Banned");
-	public static final SQLTable	Coins			= new SQLTable("Coins");
-	public static final SQLTable	Dojo			= new SQLTable("Dojo");
-	public static final SQLTable	ForceCooldowns	= new SQLTable("ForceCooldowns");
-	public static final SQLTable	Friends			= new SQLTable("Friends");
-	public static final SQLTable	JunMODS			= new SQLTable("JunMODS");
-	public static final SQLTable	Level			= new SQLTable("Level");
-	public static final SQLTable	MiscItems		= new SQLTable("MiscItems");
-	public static final SQLTable	ModCommands		= new SQLTable("ModCommands");
-	public static final SQLTable	MODS			= new SQLTable("MODS");
-	public static final SQLTable	Muted			= new SQLTable("Muted");
-	public static final SQLTable	MynerimItems	= new SQLTable("MynerimItems");
-	public static final SQLTable	nickNames		= new SQLTable("nickNames");
-	public static final SQLTable	PermaItems		= new SQLTable("PermaItems");
-	public static final SQLTable	Points			= new SQLTable("Points");
-	public static final SQLTable	PrivateMutes	= new SQLTable("PrivateMutes");
-	public static final SQLTable	RedeemCodes		= new SQLTable("RedeemCodes");
-	public static final SQLTable	Rules			= new SQLTable("Rules");
-	public static final SQLTable	Scavenger		= new SQLTable("Scavenger");
-	public static final SQLTable	Settings		= new SQLTable("Settings");
-	public static final SQLTable	SkillTokens		= new SQLTable("SkillTokens");
-	public static final SQLTable	Statistics		= new SQLTable("Statistics");
-	public static final SQLTable	Tips			= new SQLTable("Tips");
-	public static final SQLTable	Updater			= new SQLTable("Updater");
-	public static final SQLTable	Youtubers		= new SQLTable("Youtubers");
-	public static final SQLTable	VIPS			= new SQLTable("VIPS");
-	public static final SQLTable	Zombiez			= new SQLTable("Zombiez");
+	public static final SQLTable	ADMINS				= new SQLTable("ADMINS");
+	public static final SQLTable	BanHistory			= new SQLTable("BanHistory");
+	public static final SQLTable	Banned				= new SQLTable("Banned");
+	public static final SQLTable	BattleBaneItems		= new SQLTable("BattleBaneItems");
+	public static final SQLTable	Coins				= new SQLTable("Coins");
+	public static final SQLTable	CurrentChallenges	= new SQLTable("CurrentChallenges");
+	public static final SQLTable	Dojo				= new SQLTable("Dojo");
+	public static final SQLTable	ForceCosts			= new SQLTable("ForceCosts");
+	public static final SQLTable	ForceCooldowns		= new SQLTable("ForceCooldowns");
+	public static final SQLTable	Friends				= new SQLTable("Friends");
+	public static final SQLTable	IPBans				= new SQLTable("IPBans");
+	public static final SQLTable	IPLogs				= new SQLTable("IPLogs");
+	public static final SQLTable	JunMODS				= new SQLTable("JunMODS");
+	public static final SQLTable	Level				= new SQLTable("Level");
+	public static final SQLTable	MinigameMaps		= new SQLTable("MinigameMaps");
+	public static final SQLTable	MiscItems			= new SQLTable("MiscItems");
+	public static final SQLTable	ModCommands			= new SQLTable("ModCommands");
+	public static final SQLTable	MODS				= new SQLTable("MODS");
+	public static final SQLTable	Muted				= new SQLTable("Muted");
+	public static final SQLTable	MynerimItems		= new SQLTable("MynerimItems");
+	public static final SQLTable	NetMultipliers		= new SQLTable("NetMultipliers");
+	public static final SQLTable	nickNames			= new SQLTable("nickNames");
+	public static final SQLTable	OPS					= new SQLTable("OPS");
+	public static final SQLTable	PermaItems			= new SQLTable("PermaItems");
+	public static final SQLTable	Points				= new SQLTable("Points");
+	public static final SQLTable	PrivateMutes		= new SQLTable("PrivateMutes");
+	public static final SQLTable	RedeemCodes			= new SQLTable("RedeemCodes");
+	public static final SQLTable	Rules				= new SQLTable("Rules");
+	public static final SQLTable	Scavenger			= new SQLTable("Scavenger");
+	public static final SQLTable	Settings			= new SQLTable("Settings");
+	public static final SQLTable	SkillTokens			= new SQLTable("SkillTokens");
+	public static final SQLTable	SRMODS				= new SQLTable("SRMODS");
+	public static final SQLTable	Statistics			= new SQLTable("Statistics");
+	public static final SQLTable	Tips				= new SQLTable("Tips");
+	public static final SQLTable	Updater				= new SQLTable("Updater");
+	public static final SQLTable	Youtubers			= new SQLTable("Youtubers");
+	public static final SQLTable	VIPS				= new SQLTable("VIPS");
+	public static final SQLTable	Zombiez				= new SQLTable("Zombiez");
 
 	public String					name;
 
@@ -54,7 +63,9 @@ public class SQLTable {
 		return name;
 	}
 
-	public static String		SqlIP		= "127.0.0.1";
+	public static String		SQL_IP		= "216.174.63.163";
+
+	public static String		SqlIP		= SQL_IP;
 	public static String		SqlName		= "vahost_24";
 	public static String		SqlUser		= SqlName;
 
@@ -77,11 +88,16 @@ public class SQLTable {
 					SqlPass).reverse().toString());
 			stmt = con.createStatement();
 
+			if (stmt == null) {
+				BungeeCord.getInstance().getLogger().severe("SQL Failed to initialize!");
+				enable();
+			}
+
 			conRestart = BungeeCord.getInstance().getScheduler().schedule(BungeeLink.ins, new Runnable() {
 				public void run() {
 					restartConnection();
 				}
-			}, 10, 10, TimeUnit.MINUTES);
+			}, 1, 1, TimeUnit.HOURS);
 		} catch (SQLException e) {
 			BungeeCord.getInstance().getLogger().severe("SQL Connection enable FAILED!");
 			enable();
@@ -114,6 +130,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return false;
 	}
 
@@ -128,6 +145,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return null;
 	}
 
@@ -142,6 +160,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return null;
 	}
 
@@ -156,6 +175,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return -1;
 	}
 
@@ -170,6 +190,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return -1;
 	}
 
@@ -184,6 +205,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return -1;
 	}
 
@@ -199,6 +221,7 @@ public class SQLTable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return null;
 	}
 
@@ -214,6 +237,7 @@ public class SQLTable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return null;
 	}
 
@@ -229,6 +253,7 @@ public class SQLTable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return null;
 	}
 
@@ -248,6 +273,7 @@ public class SQLTable {
 			stmt.execute(in);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			restartConnection();
 		}
 	}
 
@@ -257,6 +283,7 @@ public class SQLTable {
 			stmt.executeUpdate(in);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			restartConnection();
 		}
 	}
 
@@ -266,6 +293,7 @@ public class SQLTable {
 			stmt.execute(in);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			restartConnection();
 		}
 	}
 
@@ -280,6 +308,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return false;
 	}
 
@@ -294,6 +323,7 @@ public class SQLTable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return ret;
 	}
 
@@ -305,6 +335,7 @@ public class SQLTable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		restartConnection();
 		return null;
 	}
 
@@ -313,6 +344,7 @@ public class SQLTable {
 		try {
 			stmt.execute(in);
 		} catch (SQLException e) {
+			restartConnection();
 			e.printStackTrace();
 		}
 	}
@@ -326,39 +358,52 @@ public class SQLTable {
 			stmt.execute(in);
 		} catch (SQLException e) {
 			e.printStackTrace();
+			restartConnection();
 		}
 	}
 
 	public static boolean hasRank(String name, Rank r) {
 		if (r == Rank.JR_MOD) {
-			return JunMODS.has("Username", name) || MODS.has("Username", name) || ADMINS.has("Username", name);
+			return JunMODS.has("Username", name) || MODS.has("Username", name) || SRMODS.has("Username", name)
+					|| ADMINS.has("Username", name);
 		} else if (r == Rank.MOD) {
-			return MODS.has("Username", name) || ADMINS.has("Username", name);
+			return MODS.has("Username", name) || SRMODS.has("Username", name) || ADMINS.has("Username", name);
+		} else if (r == Rank.SR_MOD) {
+			return SRMODS.has("Username", name) || ADMINS.has("Username", name);
 		} else if (r == Rank.ADMIN) {
 			return ADMINS.has("Username", name);
 		} else if (VIPS.has("Username", name) || JunMODS.has("Username", name) || MODS.has("Username", name)
-				|| ADMINS.has("Username", name)) {
+				|| SRMODS.has("Username", name) || ADMINS.has("Username", name)) {
 			return VIPS.getInt("Username", name, "TypeID") >= r.val || JunMODS.has("Username", name)
-					|| MODS.has("Username", name) || ADMINS.has("Username", name);
+					|| MODS.has("Username", name) || SRMODS.has("Username", name) || ADMINS.has("Username", name);
+		} else if (r == Rank.YOUTUBE) {
+			return Youtubers.has("Username", name) || JunMODS.has("Username", name) || MODS.has("Username", name)
+					|| SRMODS.has("Username", name) || ADMINS.has("Username", name);
 		} else
 			return false;
 	}
 
 	public static void setRank(String name, Rank r) {
-		clearRank(name);
+		if (r != Rank.YOUTUBE) {
+			clearRank(name);
+		}
 		if (r == Rank.ADMIN) {
 			ADMINS.add("Username", name);
+		} else if (r == Rank.SR_MOD) {
+			SRMODS.add("Username", name);
 		} else if (r == Rank.MOD) {
 			MODS.add("Username", name);
 		} else if (r == Rank.JR_MOD) {
 			JunMODS.add("Username", name);
+		} else if (r == Rank.YOUTUBE) {
+			Youtubers.add("Username", name);
 		} else if (r != null) {
 			VIPS.add("Username", name, "TypeId", r.val + "");
 		}
 	}
 
 	public static void clearRank(String name) {
-		SQLTable[] tables = { ADMINS, MODS, JunMODS, VIPS, Youtubers };
+		SQLTable[] tables = { ADMINS, SRMODS, MODS, JunMODS, VIPS };
 		for (SQLTable t : tables) {
 			t.del("Username", name);
 		}
@@ -367,52 +412,48 @@ public class SQLTable {
 	public enum Rank {
 		COAL(
 			0,
-			ChatColor.DARK_GRAY,
-			ChatColor.BOLD + "C" + ChatColor.RESET),
+			ChatColor.DARK_GRAY),
 		IRON(
 			1,
-			ChatColor.GRAY,
-			ChatColor.BOLD + "I" + ChatColor.RESET),
+			ChatColor.GRAY),
 		GOLD(
 			2,
-			ChatColor.YELLOW,
-			ChatColor.BOLD + "G" + ChatColor.RESET),
+			ChatColor.YELLOW),
 		DIAMOND(
 			3,
-			ChatColor.AQUA,
-			ChatColor.BOLD + "D" + ChatColor.RESET),
+			ChatColor.AQUA),
 		EMERALD(
 			4,
-			ChatColor.GREEN,
-			ChatColor.BOLD + "E" + ChatColor.RESET),
+			ChatColor.GREEN),
 		OBSIDIAN(
 			5,
-			ChatColor.DARK_PURPLE,
-			ChatColor.BOLD + "O" + ChatColor.RESET),
+			ChatColor.DARK_PURPLE),
 		NETHER(
 			6,
-			ChatColor.DARK_RED,
-			ChatColor.BOLD + "N" + ChatColor.RESET),
+			ChatColor.DARK_RED),
 		ENDER(
 			7,
-			ChatColor.BLACK,
-			ChatColor.BOLD + "E" + ChatColor.RESET),
+			ChatColor.BLACK),
+		YOUTUBE(
+			0,
+			ChatColor.DARK_RED),
 		JR_MOD(
 			0,
-			ChatColor.GOLD,
-			"Jr. Mod"),
+			ChatColor.YELLOW),
 		MOD(
 			0,
-			ChatColor.GOLD,
-			"Mod"),
+			ChatColor.GOLD),
+		SR_MOD(
+			0,
+			ChatColor.BLUE),
 		ADMIN(
 			0,
-			ChatColor.RED,
-			"Admin");
+			ChatColor.RED);
 
-		int	val;
+		int					val;
+		public ChatColor	sufColor;
 
-		Rank(int val, ChatColor sufColor, String sufChar) {
+		Rank(int val, ChatColor sufColor) {
 			this.val = val;
 		}
 	}
