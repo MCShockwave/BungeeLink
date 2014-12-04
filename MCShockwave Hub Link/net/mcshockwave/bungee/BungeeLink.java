@@ -9,6 +9,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -469,6 +470,19 @@ public class BungeeLink extends Plugin implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onPlayerConnect(PreLoginEvent event) {
+		String ip = event.getConnection().getAddress().getAddress().getHostAddress();
+		if (SQLTable.IPBans.has("IP", ip)) {
+			event.setCancelled(true);
+			event.setCancelReason(String.format(
+					"§aBanned by %s: §f%s §b[Permanent]", 
+					SQLTable.IPBans.get("IP", ip, "BannedBy"), 
+					SQLTable.IPBans.get("IP", ip, "Reason")).replace("Banned", "IP-Banned") 
+					+ "      §cIf you feel you were wrongfully banned, appeal on our site at §b§ohttp://forums.mcshockwave.net/");
+		}
+	}
+	
 	@EventHandler
 	public void onPlayerChangeServer(ServerSwitchEvent event) {
 		pingPlayer(event.getPlayer(), event.getPlayer().getServer());
