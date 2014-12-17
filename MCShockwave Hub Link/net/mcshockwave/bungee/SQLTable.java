@@ -89,7 +89,6 @@ public class SQLTable {
 			stmt = con.createStatement();
 
 			if (stmt == null) {
-				BungeeCord.getInstance().getLogger().severe("SQL Failed to initialize!");
 				enable();
 			}
 
@@ -97,7 +96,7 @@ public class SQLTable {
 				public void run() {
 					restartConnection();
 				}
-			}, 1, 1, TimeUnit.HOURS);
+			}, 10, 10, TimeUnit.MINUTES);
 		} catch (SQLException e) {
 			BungeeCord.getInstance().getLogger().severe("SQL Connection enable FAILED!");
 			enable();
