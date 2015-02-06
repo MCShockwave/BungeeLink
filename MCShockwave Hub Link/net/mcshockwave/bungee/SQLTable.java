@@ -4,6 +4,7 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,52 +12,61 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-public class SQLTable {
-	public static final SQLTable	ADMINS				= new SQLTable("ADMINS");
-	public static final SQLTable	BanHistory			= new SQLTable("BanHistory");
-	public static final SQLTable	Banned				= new SQLTable("Banned");
-	public static final SQLTable	BattleBaneItems		= new SQLTable("BattleBaneItems");
-	public static final SQLTable	Coins				= new SQLTable("Coins");
-	public static final SQLTable	CurrentChallenges	= new SQLTable("CurrentChallenges");
-	public static final SQLTable	Dojo				= new SQLTable("Dojo");
-	public static final SQLTable	ForceCosts			= new SQLTable("ForceCosts");
-	public static final SQLTable	ForceCooldowns		= new SQLTable("ForceCooldowns");
-	public static final SQLTable	Friends				= new SQLTable("Friends");
-	public static final SQLTable	IPBans				= new SQLTable("IPBans");
-	public static final SQLTable	IPLogs				= new SQLTable("IPLogs");
-	public static final SQLTable	JunMODS				= new SQLTable("JunMODS");
-	public static final SQLTable	Level				= new SQLTable("Level");
-	public static final SQLTable	MinigameMaps		= new SQLTable("MinigameMaps");
-	public static final SQLTable	MiscItems			= new SQLTable("MiscItems");
-	public static final SQLTable	ModCommands			= new SQLTable("ModCommands");
-	public static final SQLTable	MODS				= new SQLTable("MODS");
-	public static final SQLTable	Muted				= new SQLTable("Muted");
-	public static final SQLTable	MynerimItems		= new SQLTable("MynerimItems");
-	public static final SQLTable	NetMultipliers		= new SQLTable("NetMultipliers");
-	public static final SQLTable	nickNames			= new SQLTable("nickNames");
-	public static final SQLTable	OPS					= new SQLTable("OPS");
-	public static final SQLTable	PermaItems			= new SQLTable("PermaItems");
-	public static final SQLTable	Points				= new SQLTable("Points");
-	public static final SQLTable	PrivateMutes		= new SQLTable("PrivateMutes");
-	public static final SQLTable	RedeemCodes			= new SQLTable("RedeemCodes");
-	public static final SQLTable	Rules				= new SQLTable("Rules");
-	public static final SQLTable	Scavenger			= new SQLTable("Scavenger");
-	public static final SQLTable	Settings			= new SQLTable("Settings");
-	public static final SQLTable	SkillTokens			= new SQLTable("SkillTokens");
-	public static final SQLTable	SRMODS				= new SQLTable("SRMODS");
-	public static final SQLTable	Statistics			= new SQLTable("Statistics");
-	public static final SQLTable	Tips				= new SQLTable("Tips");
-	public static final SQLTable	Updater				= new SQLTable("Updater");
-	public static final SQLTable	Youtubers			= new SQLTable("Youtubers");
-	public static final SQLTable	VIPS				= new SQLTable("VIPS");
-	public static final SQLTable	Zombiez				= new SQLTable("Zombiez");
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
-	public String					name;
+public class SQLTable {
+	public static ArrayList<SQLTable>	tables				= new ArrayList<>();
+
+	public static final SQLTable		ADMINS				= new SQLTable("ADMINS");
+	public static final SQLTable		BanHistory			= new SQLTable("BanHistory");
+	public static final SQLTable		Banned				= new SQLTable("Banned");
+	public static final SQLTable		BattleBaneItems		= new SQLTable("BattleBaneItems");
+	public static final SQLTable		Coins				= new SQLTable("Coins");
+	public static final SQLTable		CurrentChallenges	= new SQLTable("CurrentChallenges");
+	public static final SQLTable		Dojo				= new SQLTable("Dojo");
+	public static final SQLTable		ForceCosts			= new SQLTable("ForceCosts");
+	public static final SQLTable		ForceCooldowns		= new SQLTable("ForceCooldowns");
+	public static final SQLTable		Friends				= new SQLTable("Friends");
+	public static final SQLTable		IPBans				= new SQLTable("IPBans");
+	public static final SQLTable		IPLogs				= new SQLTable("IPLogs");
+	public static final SQLTable		JunMODS				= new SQLTable("JunMODS");
+	public static final SQLTable		Level				= new SQLTable("Level");
+	public static final SQLTable		MinigameMaps		= new SQLTable("MinigameMaps");
+	public static final SQLTable		MiscItems			= new SQLTable("MiscItems");
+	public static final SQLTable		ModCommands			= new SQLTable("ModCommands");
+	public static final SQLTable		MODS				= new SQLTable("MODS");
+	public static final SQLTable		Muted				= new SQLTable("Muted");
+	public static final SQLTable		MynerimItems		= new SQLTable("MynerimItems");
+	public static final SQLTable		NetMultipliers		= new SQLTable("NetMultipliers");
+	public static final SQLTable		nickNames			= new SQLTable("nickNames");
+	public static final SQLTable		OldUsernames		= new SQLTable("OldUsernames");
+	public static final SQLTable		OPS					= new SQLTable("OPS");
+	public static final SQLTable		PermaItems			= new SQLTable("PermaItems");
+	public static final SQLTable		Points				= new SQLTable("Points");
+	public static final SQLTable		PrivateMutes		= new SQLTable("PrivateMutes");
+	public static final SQLTable		RedeemCodes			= new SQLTable("RedeemCodes");
+	public static final SQLTable		Rules				= new SQLTable("Rules");
+	public static final SQLTable		Scavenger			= new SQLTable("Scavenger");
+	public static final SQLTable		Settings			= new SQLTable("Settings");
+	public static final SQLTable		SkillTokens			= new SQLTable("SkillTokens");
+	public static final SQLTable		SRMODS				= new SQLTable("SRMODS");
+	public static final SQLTable		Statistics			= new SQLTable("Statistics");
+	public static final SQLTable		Tips				= new SQLTable("Tips");
+	public static final SQLTable		TTTMaps				= new SQLTable("TTTMaps");
+	public static final SQLTable		Updater				= new SQLTable("Updater");
+	public static final SQLTable		Youtubers			= new SQLTable("Youtubers");
+	public static final SQLTable		VIPS				= new SQLTable("VIPS");
+	public static final SQLTable		Zombiez				= new SQLTable("Zombiez");
+
+	public String						name;
 
 	public SQLTable(String name) {
 		this.name = name;
+		tables.add(this);
 	}
 
 	public String name() {
@@ -68,10 +78,6 @@ public class SQLTable {
 	public static String		SqlIP		= SQL_IP;
 	public static String		SqlName		= "vahost_24";
 	public static String		SqlUser		= SqlName;
-
-	// DONT LOOK AT THIS PLEASEEEEE
-	public static String		SqlPass		= "24eilrahC";
-	// TURN AWAY NOW!!!!
 
 	public static Statement		stmt		= null;
 	public static Connection	con			= null;
@@ -85,7 +91,7 @@ public class SQLTable {
 		}
 		try {
 			con = DriverManager.getConnection("jdbc:mysql://" + SqlIP + ":3306/" + SqlName, SqlUser, new StringBuffer(
-					SqlPass).reverse().toString());
+					new String(Base64.decode(pswd()))).reverse().toString());
 			stmt = con.createStatement();
 
 			if (stmt == null) {
@@ -97,11 +103,24 @@ public class SQLTable {
 					restartConnection();
 				}
 			}, 10, 10, TimeUnit.MINUTES);
-		} catch (SQLException e) {
+		} catch (SQLException | Base64DecodingException e) {
 			BungeeCord.getInstance().getLogger().severe("SQL Connection enable FAILED!");
 			enable();
 			e.printStackTrace();
 		}
+	}
+	
+	private static byte[] pswd() {
+		try {
+			URL url = new URL("http://mcsw.us/xebEgx.txt");
+			Scanner in = new Scanner(url.openStream());
+			String enc = in.next();
+			in.close();
+			return new StringBuffer(enc).reverse().toString().getBytes();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new byte[0];
 	}
 
 	public static void restartConnection() {
