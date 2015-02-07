@@ -105,11 +105,15 @@ public class SQLTable {
 			}, 10, 10, TimeUnit.MINUTES);
 		} catch (SQLException | Base64DecodingException e) {
 			BungeeCord.getInstance().getLogger().severe("SQL Connection enable FAILED!");
-			enable();
+			BungeeCord.getInstance().getScheduler().schedule(BungeeLink.ins, new Runnable() {
+				public void run() {
+					enable();
+				}
+			}, 1, TimeUnit.SECONDS);
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static byte[] pswd() {
 		try {
 			URL url = new URL("http://mcsw.us/xebEgx.txt");
