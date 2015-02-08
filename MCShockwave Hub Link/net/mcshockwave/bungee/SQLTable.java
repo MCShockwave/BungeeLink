@@ -95,7 +95,8 @@ public class SQLTable {
 			stmt = con.createStatement();
 
 			if (stmt == null) {
-				enable();
+				restartConnection();
+				return;
 			}
 
 			conRestart = BungeeCord.getInstance().getScheduler().schedule(BungeeLink.ins, new Runnable() {
@@ -107,7 +108,7 @@ public class SQLTable {
 			BungeeCord.getInstance().getLogger().severe("SQL Connection enable FAILED!");
 			BungeeCord.getInstance().getScheduler().schedule(BungeeLink.ins, new Runnable() {
 				public void run() {
-					enable();
+					restartConnection();
 				}
 			}, 1, TimeUnit.SECONDS);
 			e.printStackTrace();
