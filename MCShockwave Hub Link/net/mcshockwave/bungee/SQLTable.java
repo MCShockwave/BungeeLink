@@ -101,7 +101,14 @@ public class SQLTable {
 
 			conRestart = BungeeCord.getInstance().getScheduler().schedule(BungeeLink.ins, new Runnable() {
 				public void run() {
-					restartConnection();
+					try {
+						if (stmt == null || con == null || stmt.isClosed() || con.isClosed()) {
+							restartConnection();
+						}
+					} catch (SQLException e) {
+						restartConnection();
+						e.printStackTrace();
+					}
 				}
 			}, 10, 10, TimeUnit.MINUTES);
 		} catch (SQLException | Base64DecodingException e) {
@@ -131,15 +138,18 @@ public class SQLTable {
 	public static void restartConnection() {
 		BungeeCord.getInstance().getLogger().info("Restarting SQL Connection");
 		try {
-			con.close();
-			stmt.close();
-			enable();
+			if (stmt != null) {
+				stmt.close();
+			}
+			if (con != null) {
+				con.close();
+			}
 			BungeeCord.getInstance().getLogger().info("SQL Connection successfully restarted!");
 		} catch (SQLException e) {
 			BungeeCord.getInstance().getLogger().severe("SQL Restart FAILED!");
-			enable();
 			e.printStackTrace();
 		}
+		enable();
 	}
 
 	public boolean has(String col, String val) {
