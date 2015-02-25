@@ -1,6 +1,7 @@
 package net.mcshockwave.bungee;
 
 import net.mcshockwave.bungee.SQLTable.Rank;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.ServerPing.Players;
@@ -9,6 +10,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -109,11 +111,41 @@ public class BungeeLink extends Plugin implements Listener {
 		sp.setDescription(motd);
 		sp.setPlayers(new Players(maxplayers, sp.getPlayers().getOnline(), sp.getPlayers().getSample()));
 		event.setResponse(sp);
-		
+
 		try {
 			updateMOTD();
 		} catch (Exception e) {
 		}
+	}
+
+	public void privMessage(String sender, String receiver, String message) {
+		if (getProxy().getPlayer(receiver) == null) {
+			sendTo(getProxy().getPlayer(sender), "§cPlayer not found: '" + receiver + "'");
+			return;
+		}
+		for (ProxiedPlayer pp : getProxy().getPlayers()) {
+			if (pp.getName().equalsIgnoreCase(sender)) {
+				sendTo(pp, "§6[You -> " + receiver + "§e("
+						+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")§6]§f " + message);
+				continue;
+			}
+			if (pp.getName().equalsIgnoreCase(receiver)) {
+				sendTo(pp, "§6[" + sender + "§e(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
+						+ ")§6 -> You]§f " + message);
+				continue;
+			}
+			if (SQLTable.hasRank(pp.getName(), Rank.JR_MOD)) {
+				sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
+						+ ") -> " + receiver + "(" + getProxy().getPlayer(receiver).getServer().getInfo().getName()
+						+ ")] " + message);
+			}
+		}
+
+		replCom.remove(sender);
+		replCom.remove(receiver);
+
+		replCom.put(sender, receiver);
+		replCom.put(receiver, sender);
 	}
 
 	@EventHandler
@@ -181,33 +213,7 @@ public class BungeeLink extends Plugin implements Listener {
 				}
 			}
 
-			if (getProxy().getPlayer(receiver) == null) {
-				sendTo(getProxy().getPlayer(sender), "§cPlayer not found: '" + receiver + "'");
-				return;
-			}
-			for (ProxiedPlayer pp : getProxy().getPlayers()) {
-				if (pp.getName().equalsIgnoreCase(sender)) {
-					sendTo(pp, "§7[You -> " + receiver + "("
-							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message);
-					continue;
-				}
-				if (pp.getName().equalsIgnoreCase(receiver)) {
-					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
-							+ ") -> You] " + message);
-					continue;
-				}
-				if (SQLTable.hasRank(pp.getName(), Rank.JR_MOD)) {
-					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
-							+ ") -> " + receiver + "(" + getProxy().getPlayer(receiver).getServer().getInfo().getName()
-							+ ")] " + message);
-				}
-			}
-
-			replCom.remove(sender);
-			replCom.put(sender, receiver);
-
-			replCom.remove(receiver);
-			replCom.put(receiver, sender);
+			privMessage(sender, receiver, message);
 
 		}
 
@@ -233,33 +239,7 @@ public class BungeeLink extends Plugin implements Listener {
 			}
 			String receiver = replCom.get(sender);
 
-			if (getProxy().getPlayer(receiver) == null) {
-				sendTo(getProxy().getPlayer(sender), "§cPlayer not found: '" + receiver + "'");
-				return;
-			}
-			for (ProxiedPlayer pp : getProxy().getPlayers()) {
-				if (pp.getName().equalsIgnoreCase(sender)) {
-					sendTo(pp, "§7[You -> " + receiver + "("
-							+ getProxy().getPlayer(receiver).getServer().getInfo().getName() + ")] " + message);
-					continue;
-				}
-				if (pp.getName().equalsIgnoreCase(receiver)) {
-					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
-							+ ") -> You] " + message);
-					continue;
-				}
-				if (SQLTable.hasRank(pp.getName(), Rank.JR_MOD)) {
-					sendTo(pp, "§7[" + sender + "(" + getProxy().getPlayer(sender).getServer().getInfo().getName()
-							+ ") -> " + receiver + "(" + getProxy().getPlayer(receiver).getServer().getInfo().getName()
-							+ ")] " + message);
-				}
-			}
-
-			replCom.remove(sender);
-			replCom.put(sender, receiver);
-
-			replCom.remove(receiver);
-			replCom.put(receiver, sender);
+			privMessage(sender, receiver, message);
 		}
 
 		if (event.getTag().equalsIgnoreCase("MCShockwave")) {
@@ -367,7 +347,7 @@ public class BungeeLink extends Plugin implements Listener {
 			}
 
 			Rank r = Rank.valueOf(rank.toUpperCase());
-			
+
 			for (ProxiedPlayer pp : getProxy().getPlayers()) {
 				if (SQLTable.hasRank(pp.getName(), r)) {
 					sendTo(pp, message);
@@ -475,17 +455,30 @@ public class BungeeLink extends Plugin implements Listener {
 		String ip = event.getConnection().getAddress().getAddress().getHostAddress();
 		if (SQLTable.IPBans.has("IP", ip)) {
 			event.setCancelled(true);
-			event.setCancelReason(String.format(
-					"§aBanned by %s: §f%s §b[Permanent]", 
-					SQLTable.IPBans.get("IP", ip, "BannedBy"), 
-					SQLTable.IPBans.get("IP", ip, "Reason")).replace("Banned", "IP-Banned") 
+			event.setCancelReason(String.format("§aBanned by %s: §f%s §b[Permanent]",
+					SQLTable.IPBans.get("IP", ip, "BannedBy"), SQLTable.IPBans.get("IP", ip, "Reason")).replace(
+					"Banned", "IP-Banned")
 					+ "      §cIf you feel you were wrongfully banned, appeal on our site at §b§ohttp://forums.mcshockwave.net/");
 		}
 	}
-	
+
 	@EventHandler
 	public void onPlayerChangeServer(ServerSwitchEvent event) {
 		pingPlayer(event.getPlayer(), event.getPlayer().getServer());
+	}
+
+	@EventHandler
+	public void onPlayerJoin(PostLoginEvent event) {
+		for (ProxiedPlayer pp : BungeeCord.getInstance().getPlayers()) {
+			if (SQLTable.Friends.has("Username", pp.getName())) {
+				if (SQLTable.Friends.get("Username", pp.getName(), "Friends").contains("," + pp.getName())
+						&& SQLTable.Friends.get("Username", event.getPlayer().getName(), "Friends").contains(
+								"," + pp.getName())) {
+					sendTo(event.getPlayer(), "§b" + pp.getName() + " is online on §a"
+							+ pp.getServer().getInfo().getName());
+				}
+			}
+		}
 	}
 
 	@EventHandler
