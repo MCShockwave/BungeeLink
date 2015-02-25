@@ -76,7 +76,7 @@ public class SQLTable {
 	public static String		SQL_IP		= "192.99.39.117";
 
 	public static String		SqlIP		= SQL_IP;
-	public static String		SqlName		= "vahost_24";
+	public static String		SqlName		= "vahost24";
 	public static String		SqlUser		= SqlName;
 
 	public static Statement		stmt		= null;
